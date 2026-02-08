@@ -9,19 +9,31 @@ import java.util.List;
 
 public class UserDao {
     public void create(User newUser) {
-        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.persist(newUser);
-        tx1.commit();
-        session.close();
+        Transaction tx1 = null;
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            tx1 = session.beginTransaction();
+            session.persist(newUser);
+            tx1.commit();
+        } catch (Exception e) {
+            if (tx1 != null) {
+                tx1.rollback();
+            }
+            throw new RuntimeException();
+        }
     }
 
     public void update(User user) {
-        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.merge(user);
-        tx1.commit();
-        session.close();
+        Transaction tx1 = null;
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            tx1 = session.beginTransaction();
+            session.merge(user);
+            tx1.commit();
+        } catch (Exception e) {
+            if (tx1 != null) {
+                tx1.rollback();
+            }
+            throw new RuntimeException();
+        }
     }
 
     public User findById(int id) {
@@ -29,11 +41,17 @@ public class UserDao {
     }
 
     public void delete(User user) {
-        Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.remove(user);
-        tx1.commit();
-        session.close();
+        Transaction tx1 = null;
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            tx1 = session.beginTransaction();
+            session.remove(user);
+            tx1.commit();
+        } catch (Exception e) {
+            if (tx1 != null) {
+                tx1.rollback();
+            }
+            throw new RuntimeException();
+        }
     }
 
     public List<User> findAll() {
