@@ -13,8 +13,18 @@ import java.util.function.Predicate;
 
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private final UserDao usersDao = new UserDao();
-    private final Scanner scanner = new Scanner(System.in);
+    private final UserDao usersDao;
+    private final Scanner scanner;
+
+    public UserServiceImpl() {
+        this.usersDao = new UserDao();
+        this.scanner = new Scanner(System.in);
+    }
+
+    public UserServiceImpl(UserDao usersDao, Scanner scanner) {
+        this.usersDao = usersDao;
+        this.scanner = scanner;
+    }
 
 
     private static final String USER_NAME_EMPTY_MSG = "Имя не может быть пустым. Попробуйте ещё раз.";
