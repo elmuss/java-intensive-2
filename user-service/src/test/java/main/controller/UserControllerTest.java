@@ -36,11 +36,7 @@ class UserControllerTest {
         newUserDto.setEmail("newuser@example.com");
         newUserDto.setAge(30);
 
-        UserDto expectedUserDto = new UserDto();
-        expectedUserDto.setId(1);
-        expectedUserDto.setName("New user");
-        expectedUserDto.setEmail("newuser@example.com");
-        expectedUserDto.setAge(30);
+        UserDto expectedUserDto = new UserDto(1, "New user", "newuser@example.com", 30);
 
         when(userService.createUser(any(NewUserDto.class))).thenReturn(expectedUserDto);
 
@@ -61,11 +57,7 @@ class UserControllerTest {
     @Test
     void findUser() throws Exception {
         int userId = 1;
-        UserDto userDto = new UserDto();
-        userDto.setId(userId);
-        userDto.setName("Find user");
-        userDto.setEmail("finduser@example.com");
-        userDto.setAge(25);
+        UserDto userDto = new UserDto(userId, "Find user", "finduser@example.com", 25);
 
         when(userService.findUser(userId)).thenReturn(userDto);
 
@@ -101,11 +93,7 @@ class UserControllerTest {
         updateDto.setAge(35);
         updateDto.setEmail("updated@example.com");
 
-        UserDto updatedUserDto = new UserDto();
-        updatedUserDto.setId(userId);
-        updatedUserDto.setName("Updated Name");
-        updatedUserDto.setEmail("updated@example.com");
-        updatedUserDto.setAge(35);
+        UserDto updatedUserDto = new UserDto(userId, "Updated Name", "updated@example.com", 35);
 
         when(userService.updateUser(eq(userId), any(UpdateUserDto.class))).thenReturn(updatedUserDto);
 
@@ -124,17 +112,9 @@ class UserControllerTest {
 
     @Test
     void findAllUsers() throws Exception {
-        UserDto user1 = new UserDto();
-        user1.setId(1);
-        user1.setName("User One");
-        user1.setEmail("user1@example.com");
-        user1.setAge(28);
+        UserDto user1 = new UserDto(1, "User One", "user1@example.com", 28);
 
-        UserDto user2 = new UserDto();
-        user2.setId(2);
-        user2.setName("User Two");
-        user2.setEmail("user2@example.com");
-        user2.setAge(32);
+        UserDto user2 = new UserDto(2, "User Two", "user2@example.com", 32);
 
         List<UserDto> users = Arrays.asList(user1, user2);
 

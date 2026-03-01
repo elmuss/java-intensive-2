@@ -1,11 +1,14 @@
 package main.service;
 
+import jakarta.transaction.Transactional;
 import main.dao.UserDao;
 import main.dto.NewUserDto;
 import main.dto.UpdateUserDto;
 import main.dto.UserDto;
-import jakarta.transaction.Transactional;
 import main.model.User;
+import main.model.UserEvent;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +18,15 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    @Value("${app.kafka.topics.user-created}")
+    private String userCreatedTopic;
+    @Value("${app.kafka.topics.user-deleted}")
+    private String userDeletedTopic;
 
-    public UserServiceImpl(UserDao userDao) {
+    public UserServiceImpl(UserDao userDao, KafkaTemplate<String, Object> kafkaTemplate) {
         this.userDao = userDao;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     private static final String USER_NOT_FOUND_MSG = "User with id=%d was not found";
@@ -31,27 +40,37 @@ public class UserServiceImpl implements UserService {
         newUser.setAge(newUserDto.getAge());
 
         User savedUser = userDao.save(newUser);
+
+        kafkaTemplate.send(userCreatedTopic,
+                new UserEvent(savedUser.getId(), savedUser.getName(), savedUser.getEmail()));
+
         return userToDto(savedUser);
     }
 
     @Override
     public UserDto findUser(int id) {
         User user = userDao.findById(id)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+                .orElseThrow(() -> new RuntimeException(String.format(USER_NOT_FOUND_MSG, id)));
         return userToDto(user);
     }
 
     @Override
     @Transactional
     public void deleteUser(int id) {
+        User user = userDao.findById(id)
+                .orElseThrow(() -> new RuntimeException(String.format(USER_NOT_FOUND_MSG, id)));
         userDao.deleteById(id);
+
+        kafkaTemplate.send(userDeletedTopic,
+                new UserEvent(user.getId(), user.getName(), user.getEmail()));
     }
 
     @Override
     @Transactional
     public UserDto updateUser(Integer id, UpdateUserDto updateUserDto) {
         User user = userDao.findById(id)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+                .orElseThrow(() -> new RuntimeException(
+                        String.format(USER_NOT_FOUND_MSG, id)));
 
         if (updateUserDto.getName() != null) user.setName(updateUserDto.getName());
         if (updateUserDto.getAge() != null) user.setAge(updateUserDto.getAge());
@@ -68,13 +87,8 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    private UserDto userToDto(User user) {
-        UserDto dto = new UserDto();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setAge(user.getAge());
-        dto.setEmail(user.getEmail());
-        return dto;
+    UserDto userToDto(User user) {
+        return new UserDto(user.getId(), user.getName(), user.getEmail(), user.getAge());
     }
 
 }
