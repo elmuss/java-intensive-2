@@ -3,14 +3,15 @@ package main.service;
 import main.model.Notification;
 import main.model.UserEvent;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
-    private final Logger log;
+    private static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
-    public NotificationServiceImpl(Logger log) {
-        this.log = log;
+    public NotificationServiceImpl() {
+
     }
 
     @Override

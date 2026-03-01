@@ -20,3 +20,12 @@ app:
     topics:
       user-created: user.created
       user-deleted: user.deleted
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+  enabled: true

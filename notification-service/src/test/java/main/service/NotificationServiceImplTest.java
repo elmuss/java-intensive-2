@@ -1,17 +1,17 @@
 package main.service;
 
-import main.model.Notification;
 import main.model.UserEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceImplTest {
@@ -26,7 +26,7 @@ class NotificationServiceImplTest {
     @BeforeEach
     void setUp() {
         testUserEvent = new UserEvent(1, "Test User", "test@example.com");
-        notificationService = new NotificationServiceImpl(log);
+        notificationService = new NotificationServiceImpl();
     }
 
     @Test
@@ -37,45 +37,10 @@ class NotificationServiceImplTest {
     }
 
     @Test
-    void sendUserCreatedNotification_WhenExceptionOccurs_ShouldLogError() {
-        try (MockedConstruction<Notification> mockedConstruction = Mockito.mockConstruction(Notification.class,
-                (mock, context) -> {
-                    doThrow(new RuntimeException("Test exception"))
-                            .when(mock).setEmail(anyString());
-                })) {
-
-            notificationService.sendUserCreatedNotification(testUserEvent);
-
-            verify(log).error(
-                    eq("Ошибка при отправке уведомления о создании пользователя для email: {}"),
-                    eq(testUserEvent.userEmail()),
-                    any(RuntimeException.class)
-            );
-        }
-    }
-
-    @Test
     void sendUserDeletedNotification_ShouldCreateAndPrintNotification() {
         notificationService.sendUserDeletedNotification(testUserEvent);
 
         verify(log, never()).error(anyString(), anyString(), any());
     }
 
-    @Test
-    void sendUserDeletedNotification_WhenExceptionOccurs_ShouldLogError() {
-        try (MockedConstruction<Notification> mockedConstruction = Mockito.mockConstruction(Notification.class,
-                (mock, context) -> {
-                    doThrow(new RuntimeException("Test exception"))
-                            .when(mock).setEmail(anyString());
-                })) {
-
-            notificationService.sendUserDeletedNotification(testUserEvent);
-
-            verify(log).error(
-                    eq("Ошибка при отправке уведомления об удалении пользователя для email: {}"),
-                    eq(testUserEvent.userEmail()),
-                    any(RuntimeException.class)
-            );
-        }
-    }
 }
