@@ -1,0 +1,39 @@
+server:
+  port: 8082
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: false
+    hostname: localhost
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+    instances:
+      userServiceCB:
+        baseConfig: default
+      notificationServiceCB:
+        baseConfig: default
+        waitDurationInOpenState: 20000
+
+  timelimiter:
+    instances:
+      userServiceCB:
+        timeoutDuration: 1s
+      notificationServiceCB:
+        timeoutDuration: 5s
