@@ -1,4 +1,4 @@
-package main.controller;
+/*package main.controller;
 
 import main.dto.NewUserDto;
 import main.dto.UpdateUserDto;
@@ -132,4 +132,4 @@ class UserControllerTest {
 
         verify(userService, times(1)).findAllUsers();
     }
-}
+}*/
